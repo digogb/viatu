@@ -1,0 +1,103 @@
+{
+  "_comment": "Resposta REAL do BFF /bff/air-offers/v2/offers/search/redemption capturada em 25/04/2026 para FOR->IGU em 21/06/2026 (4 adultos). Truncada para 2 itinerários representativos. Use isto como verdade de campo para o parser em app/latam_client.py::_parse_search.",
+  "totalElements": 46,
+  "content": [
+    {
+      "summary": {
+        "tags": ["CHEAPEST"],
+        "stopOvers": 1,
+        "duration": 485,
+        "flightCode": "LA3253",
+        "origin": {
+          "departure": "2026-06-21T06:00:00",
+          "departureTime": "6:00",
+          "iataCode": "FOR",
+          "airport": "Intl. Pinto Martins",
+          "city": "Fortaleza"
+        },
+        "destination": {
+          "arrival": "2026-06-21T14:05:00",
+          "arrivalTime": "14:05",
+          "iataCode": "IGU",
+          "airport": "Cataratas",
+          "city": "Foz do Iguaçu"
+        },
+        "brands": [
+          {
+            "id": "SL",
+            "offerId": "647abef5...loyalty",
+            "brandText": "LIGHT",
+            "cabin": {"id": "Y", "label": "Economy"},
+            "farebasis": "QLKX0V1",
+            "price": {
+              "currency": "LOYALTY_POINTS",
+              "amount": 22666,
+              "display": "22.666 milhas"
+            },
+            "taxes": {"currency": "BRL", "amount": 56.88, "display": "BRL 56,88"}
+          },
+          {
+            "id": "KM",
+            "offerId": "e8c0832c...loyalty",
+            "brandText": "STANDARD",
+            "cabin": {"id": "Y", "label": "Economy"},
+            "farebasis": "QLKX0V4",
+            "price": {"currency": "LOYALTY_POINTS", "amount": 25450},
+            "taxes": {"currency": "BRL", "amount": 56.88}
+          },
+          {
+            "id": "KD",
+            "offerId": "7caa5a18...loyalty",
+            "brandText": "FULL",
+            "cabin": {"id": "Y", "label": "Economy"},
+            "farebasis": "QLKX0V7",
+            "price": {"currency": "LOYALTY_POINTS", "amount": 26857},
+            "taxes": {"currency": "BRL", "amount": 56.88}
+          },
+          {
+            "id": "RY",
+            "offerId": "283efcd9...loyalty",
+            "brandText": "PREMIUM ECONOMY",
+            "cabin": {"id": "Y", "label": "PremiumEconomy"},
+            "farebasis": "QLKX0VA",
+            "price": {"currency": "LOYALTY_POINTS", "amount": 33591},
+            "taxes": {"currency": "BRL", "amount": 56.88}
+          }
+        ],
+        "lowestPrice": {"currency": "LOYALTY_POINTS", "amount": 22666},
+        "flightOperators": ["LATAM Airlines Brasil"],
+        "changeOfAirport": false
+      },
+      "itinerary": [
+        {
+          "duration": 215,
+          "equipment": "320",
+          "flight": {"flightNumber": 3253, "airlineCode": "LA"},
+          "origin": "FOR",
+          "destination": "GRU",
+          "departure": "2026-06-21T06:00:00",
+          "arrival": "2026-06-21T09:35:00"
+        },
+        {
+          "duration": 105,
+          "equipment": "320",
+          "flight": {"flightNumber": 3202, "airlineCode": "LA"},
+          "origin": "GRU",
+          "destination": "IGU",
+          "departure": "2026-06-21T12:20:00",
+          "arrival": "2026-06-21T14:05:00"
+        }
+      ],
+      "newPrices": [
+        {"fare": 22666, "taxes": 56.88, "total": 22666},
+        {"fare": 25450, "taxes": 56.88, "total": 25450},
+        {"fare": 26857, "taxes": 56.88, "total": 26857},
+        {"fare": 33591, "taxes": 56.88, "total": 33591}
+      ]
+    }
+  ],
+  "extraDetails": {
+    "X-latam-Track-Id": "6ed72630-93e7-487e-8d63-5b51fcce4294",
+    "X-latam-App-Session-Id": "4a3fe946-1f81-453a-94f9-21192921ac01"
+  }
+}

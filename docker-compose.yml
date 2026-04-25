@@ -1,0 +1,63 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: latam
+      POSTGRES_PASSWORD: latam
+      POSTGRES_DB: viatu
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U latam"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - cookies:/app/.cookies
+    environment:
+      - LATAM_COOKIES_PATH=/app/.cookies/.latam_cookies.json
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  primer:
+    build: .
+    profiles: ["primer"]
+    command: ["uv", "run", "python", "-m", "app.primer"]
+    env_file:
+      - .env
+    volumes:
+      - cookies:/app/.cookies
+    environment:
+      - LATAM_COOKIES_PATH=/app/.cookies/.latam_cookies.json
+      - PRIMER_HEADLESS=true
+
+volumes:
+  pgdata:
+  cookies:

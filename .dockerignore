@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.env
+.env.local
+.latam_cookies.json
+*.log
+.git/
+docs/
+tests/
