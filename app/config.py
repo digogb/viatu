@@ -38,6 +38,11 @@ class Settings(BaseSettings):
     evolution_instance: str = Field(default="")
     evolution_api_key: str = Field(default="")
 
+    # Dashboard auth
+    dashboard_password: str = Field(default="viatu")
+    jwt_secret: str = Field(default="change-me-in-production")
+    jwt_ttl_days: int = Field(default=30)
+
     # App
     app_timezone: str = Field(default="America/Fortaleza")
     log_level: str = Field(default="INFO")

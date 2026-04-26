@@ -15,7 +15,7 @@ from sqlalchemy.pool import NullPool
 from app.celery_app import celery
 from app.config import get_settings
 from app.latam_client import LatamAuthError, PlaywrightSearchClient
-from app.models import Alert, PriceSnapshot, Watch
+from app.models import Alert, PriceSnapshot, SearchJob, Watch
 from app.notifier import WhatsAppNotifier, build_deeplink, build_message
 from app.schemas import SearchRequest
 
@@ -263,6 +263,94 @@ async def _notify_async(watch_id: int, snapshot_id: int) -> None:
             await session.commit()
 
             logger.info("notify: watch %d snapshot %d — enviado=%s", watch_id, snapshot_id, success)
+    finally:
+        await engine.dispose()
+
+
+# ---------------------------------------------------------------------------
+# run_search_job
+# ---------------------------------------------------------------------------
+
+@celery.task(name="app.tasks.run_search_job", bind=True, max_retries=0)
+def run_search_job(self, job_id: int) -> None:
+    """Executa job de busca em range — atualiza progresso e armazena resultado."""
+    job_params = asyncio.run(_start_job(job_id))
+    if job_params is None:
+        return
+
+    dates_str: list[str] = job_params.get("dates", [])
+    dates = [date.fromisoformat(d) for d in dates_str]
+    total = len(dates)
+
+    client = PlaywrightSearchClient()
+    results = []
+
+    for idx, dep_date in enumerate(dates):
+        req = SearchRequest(
+            origin=job_params["origin"],
+            destination=job_params["destination"],
+            departure=dep_date,
+            return_date=date.fromisoformat(job_params["return_date"]) if job_params.get("return_date") else None,
+            adults=job_params.get("adults", 1),
+            cabin=job_params.get("cabin", "Y"),
+        )
+        try:
+            options = client.search(req)
+            cheapest = min(
+                (o for o in options if (o.fare_brand or "").upper() == "LIGHT"),
+                key=lambda o: o.points,
+                default=options[0] if options else None,
+            )
+            results.append({
+                "date": dep_date.isoformat(),
+                "cheapest_light": cheapest.model_dump() if cheapest else None,
+                "options": [o.model_dump() for o in options],
+            })
+        except Exception as exc:
+            logger.warning("run_search_job %d: falhou para %s: %s", job_id, dep_date, exc)
+            results.append({"date": dep_date.isoformat(), "error": str(exc)})
+
+        asyncio.run(_update_job_progress(job_id, int((idx + 1) / total * 100)))
+
+    asyncio.run(_finish_job(job_id, results))
+
+
+async def _start_job(job_id: int) -> dict | None:
+    factory, engine = _make_session_factory()
+    try:
+        async with factory() as session:
+            job = await session.get(SearchJob, job_id)
+            if not job:
+                return None
+            job.status = "running"
+            await session.commit()
+            return dict(job.params)
+    finally:
+        await engine.dispose()
+
+
+async def _update_job_progress(job_id: int, progress: int) -> None:
+    factory, engine = _make_session_factory()
+    try:
+        async with factory() as session:
+            job = await session.get(SearchJob, job_id)
+            if job:
+                job.progress = progress
+                await session.commit()
+    finally:
+        await engine.dispose()
+
+
+async def _finish_job(job_id: int, results: list) -> None:
+    factory, engine = _make_session_factory()
+    try:
+        async with factory() as session:
+            job = await session.get(SearchJob, job_id)
+            if job:
+                job.status = "done"
+                job.progress = 100
+                job.result = {"results": results}
+                await session.commit()
     finally:
         await engine.dispose()
 

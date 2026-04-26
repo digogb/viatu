@@ -1,9 +1,10 @@
-"""Modelos SQLAlchemy — Watch, PriceSnapshot, Alert."""
+"""Modelos SQLAlchemy — Watch, PriceSnapshot, Alert, SearchJob."""
 from __future__ import annotations
 
 from datetime import UTC, date, datetime
+from typing import Any
 
-from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Index, Integer, String
+from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Index, Integer, JSON, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -28,6 +29,7 @@ class Watch(Base):
     interval_minutes: Mapped[int] = mapped_column(Integer, default=30)
     active: Mapped[bool] = mapped_column(Boolean, default=True)
     notify_phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 
@@ -70,3 +72,17 @@ class Alert(Base):
 
     watch: Mapped[Watch] = relationship(back_populates="alerts", lazy="noload")
     snapshot: Mapped[PriceSnapshot] = relationship(lazy="noload")
+
+
+class SearchJob(Base):
+    __tablename__ = "search_jobs"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    kind: Mapped[str] = mapped_column(String(20))  # calendar, range_dates, range_months
+    params: Mapped[dict[str, Any]] = mapped_column(JSON)
+    status: Mapped[str] = mapped_column(String(20), default="pending")
+    progress: Mapped[int] = mapped_column(Integer, default=0)
+    result: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
