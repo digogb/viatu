@@ -85,3 +85,31 @@ class WatchOut(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class SnapshotOut(BaseModel):
+    id: int
+    watch_id: int
+    flight_number: str
+    stops: int
+    departure_at: datetime | None
+    arrival_at: datetime | None
+    duration_minutes: int
+    fare_brand: str
+    fare_basis: str | None
+    cabin: str
+    points: int
+    taxes_brl: float
+    captured_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class WatchDetail(WatchOut):
+    snapshots: list[SnapshotOut] = []
+
+
+class CheckResult(BaseModel):
+    watch_id: int
+    new_snapshots: int
+    cheapest: SnapshotOut | None = None

@@ -30,6 +30,8 @@ class Settings(BaseSettings):
     # Primer
     primer_headless: bool = Field(default=False)
     primer_timeout_ms: int = Field(default=60_000)
+    latam_login: str = Field(default="")
+    latam_password: str = Field(default="")
 
     # Evolution API
     evolution_base_url: str = Field(default="")

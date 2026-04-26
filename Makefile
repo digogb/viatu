@@ -9,6 +9,9 @@ down:
 logs:
 	docker compose logs -f api worker beat
 
+logs-worker:
+	docker compose logs -f worker beat
+
 build:
 	docker compose build
 
@@ -20,6 +23,9 @@ test:
 
 primer:
 	docker compose --profile primer run --rm primer
+
+migrate:
+	docker compose exec api uv run alembic upgrade head
 
 shell:
 	docker compose exec api bash

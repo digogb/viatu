@@ -17,6 +17,8 @@ dependencies = [
   "alembic>=1.13",
   "psycopg[binary]>=3.2",
   "python-json-logger>=2.0",
+  "tf-playwright-stealth>=1.2.0",
+  "curl-cffi>=0.15.0",
 ]
 
 [dependency-groups]
@@ -26,6 +28,7 @@ dev = [
   "respx>=0.21",
   "ruff>=0.7",
   "mypy>=1.13",
+  "aiosqlite>=0.20",
 ]
 
 [tool.ruff]

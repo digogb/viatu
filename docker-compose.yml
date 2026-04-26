@@ -46,6 +46,37 @@ services:
       timeout: 5s
       retries: 3
 
+  worker:
+    build: .
+    command: ["uv", "run", "celery", "-A", "app.celery_app.celery", "worker", "--loglevel=info", "--concurrency=2"]
+    env_file:
+      - .env
+    volumes:
+      - cookies:/app/.cookies
+    environment:
+      - LATAM_COOKIES_PATH=/app/.cookies/.latam_cookies.json
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  beat:
+    build: .
+    # CRÍTICO: nunca escalar além de 1 réplica — duplicaria todos os jobs
+    command: ["uv", "run", "celery", "-A", "app.celery_app.celery", "beat", "--loglevel=info"]
+    env_file:
+      - .env
+    volumes:
+      - cookies:/app/.cookies
+    environment:
+      - LATAM_COOKIES_PATH=/app/.cookies/.latam_cookies.json
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
   primer:
     build: .
     profiles: ["primer"]
@@ -54,9 +85,11 @@ services:
       - .env
     volumes:
       - cookies:/app/.cookies
+      - /tmp/.X11-unix:/tmp/.X11-unix
     environment:
       - LATAM_COOKIES_PATH=/app/.cookies/.latam_cookies.json
-      - PRIMER_HEADLESS=true
+      - PRIMER_HEADLESS=false
+      - DISPLAY=${DISPLAY:-:0}
 
 volumes:
   pgdata:
