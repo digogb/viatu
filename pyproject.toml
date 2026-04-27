@@ -19,6 +19,8 @@ dependencies = [
   "python-json-logger>=2.0",
   "tf-playwright-stealth>=1.2.0",
   "curl-cffi>=0.15.0",
+  "PyJWT>=2.9",
+  "python-multipart>=0.0.9",
 ]
 
 [dependency-groups]
